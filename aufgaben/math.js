@@ -36,6 +36,13 @@
 
 let amountStr = "15,37"
 
+let amount = parseFloat(amountStr.replace(",", ".")) * 100
+
+console.log(" - " + Math.floor(amount / 200) + "x 2€")
+
+amount = amount - Math.floor(amount / 200) * 200
+
+console.log(amount)
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -59,4 +66,4 @@ let amountStr = "15,37"
 // - Beispiel: Rechungsbetrag 10.00$    -> Der Gesamtbetrag beträgt 12.50$
 //
 // Das Programm muss nicht perfekt sein. Es reicht, wenn es ungefähr 
-// funktioniert!
+// funktioniert!  
