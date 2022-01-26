@@ -1,69 +1,52 @@
 "use strict"
+//eingabe höhe der rechnung
+let billString = "1,15"
 
-// Aufgabe 1:
-// 
-// Für eine Tankstelle soll eine automatische Rückgeld-Ausgabe implementiert
-// werden. Für dieses Beispiel soll ein Betrag von 15,37€ zurückgegeben werden.
-//
-// Wandle zuerst den Betrag in die englische Schreibweise um (15.37). Ersetze
-// dazu mit Hilfe von .replace() das Komma durch einen Punkt.
-//
-// Lese anschließend den String mit Hilfe der parseFloat()-Funktion ein, und
-// rechne ihn in Cent um. 
-// 
-// Gebe dann aus, mit welchen Münzen dieser Betrag bezahlt werden kann. Der 
-// Einfachheit halber wird dieser Betrag ausschließlich mit Münzen bezahlt
-// (vereinfacht den Code etwas).
-// 
-// Kombiniere dazu geschickt den Modulo, Rundungsfunktionen sowie ggf. den 
-// Rest. Versuche, zuerst große Münzen auszugeben!
-//
-// Tipp: Rechne den Betrag am besten zuerst in Cents um. Sonst treten leicht
-// Rundungsfehler auf, die das Programm unnötig kompliziert machen!
-//
-// Natürlich soll das Programm so geschrieben werden, dass jeder
-// Beliebige Betrag zurückgegeben werden kann.
-// 
-// Beispielausgabe: 
-//  - 7x 2€ Münze
-//  - 1x 1€-Münze
-//  - 0x 50 Cent-Münze
-//  - 1x 20 Cent-Münze
-//  - 1x 10 Cent-Münze
-//  - 1x 5 Cent-Münze
-//  - 1x 2 Cent-Münze
-//  - 0x 2 Cent-Münze
+//eingabe höhe der bezahlung
+let payString = "20"
 
-let amountStr = "15,37"
+//rückgabegeld berechnen und in string in eine nummer umwandel (auf zwei kommazahlen gerunded)
+let change = ((parseFloat(payString.replace(",", "."))) - (parseFloat(billString.replace(",", ".")))).toFixed(2)
+console.log("Das Rückgeld beträgt " + change + "€.")
 
-let amount = parseFloat(amountStr.replace(",", ".")) * 100
+//ausrechnen welche münzen verwende werden und abzug vom rückgabewert
+function changeMoney(coin) {
+  console.log(" - " + Math.floor(change / coin) + "x " + (coin) + "€")
+  change = (change - Math.floor(change / coin) * coin).toFixed(2)
+}
 
-console.log(" - " + Math.floor(amount / 200) + "x 2€")
+//2_1_0,5 münzen
+let changeCoin = 2
+if (change != 0) {
+  for (let index = 3; index > 0; index--) {
+    changeMoney(changeCoin)
+    changeCoin = changeCoin / 2
+    if (change === 0)
+      changeCoin = changeCoin * 0.5
+  }
+} else {
+  console.log("Die Rechnung wurde genau bezahlt.")
+}
 
-amount = amount - Math.floor(amount / 200) * 200
+//0.2_0.1_0.05
+changeCoin = 0.2
+if (change != 0) {
+  for (let index = 3; index > 0; index--) {
+    changeMoney(changeCoin)
+    changeCoin = changeCoin / 2
+    if (change === 0)
+      changeCoin = changeCoin * 0.5
+  }
+}
+//0.02_0.01
+changeCoin = 0.02
+if (change != 0) {
+  for (let index = 2; index > 0; index--) {
+    changeMoney(changeCoin)
+    changeCoin = changeCoin / 2
+    if (change === 0)
+      changeCoin = changeCoin * 0.5
+  }
+}
 
-console.log(amount)
-
-/////////////////////////////////////////////////////////////////////////////
-
-// Aufgabe 2
-// 
-// In Amerika ist es üblich, in Restaurants ca. 15-20% Trinkgeld zu geben. 
-// Schreibe ein Programmn welches ca. 15-20% Tringeld auf eine Restaurant-
-// Rechnung aufschlägt. 
-//
-// Versuche, dass der Betrag, der insgesamt bezahlt wird, möglichst nicht 
-// zu krumm ist.
-//
-// Kombiniere dazu geschickt die Rundungsfunktionen, Divisionen oder 
-// Multiplikationen.
-//
-// Zudem soll eine Ausgabe erfolgen, bei dem der Gesamtbetrag mit 2 Nachkommastellen
-// ausgegeben wird. Beispiel: "Der Gesamtbetrag beträgt 20.00$"
-//
-// - Beispiel: Rechungsbetrag 17.00$    -> Der Gesamtbetrag beträgt 20.00$
-// - Beispiel: Rechungsbetrag 16.50$    -> Der Gesamtbetrag beträgt 20.00$
-// - Beispiel: Rechungsbetrag 10.00$    -> Der Gesamtbetrag beträgt 12.50$
-//
-// Das Programm muss nicht perfekt sein. Es reicht, wenn es ungefähr 
-// funktioniert!  
+console.log("Die offene Rechnung macht " + change + "€.")
