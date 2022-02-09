@@ -9,9 +9,7 @@ const fs = require("fs")
 const launches = JSON.parse(fs.readFileSync("spacex/launches.json", {
   encoding: "utf-8"
 }))
-
-console.log("Anzahl launches: ", launches.length)
-
+console.log("" + launches.length + " Raketen von SpaceX.")
 // Aufgaben:
 // 
 // 1) Wie viele Raketen hat SpaceX im Jahr 2018 gestartet?
@@ -26,21 +24,25 @@ console.log("Anzahl launches: ", launches.length)
 //    entwickelt sein, dass überprüft wird, ob der Startvorgang erfolgreich
 //    war oder nicht! 
 ////////////////////////////////////1//////////////////////////////////////////
+const year = "2018"
 let counter2018 = 0
 for (const launch of launches) {
-  if (launch["launch_year"] === "2018")
+  if (launch["launch_year"] === year) {
     counter2018++
+  }
 }
-console.log("1) Startvorgängeim Jahr 2018:", counter2018)
+console.log("1) Im Jahr " + year + " startetn " + counter2018 + " Raketen von SpaceX.")
 ////////////////////////////////////1a//////////////////////////////////////////
 let counter2018Success = 0
 for (const launch of launches) {
-  if (launch["launch_year"] === "2018" && launch["launch_success"] === true)
+  if (launch["launch_year"] === year && launch["launch_success"] === true) {
     counter2018Success++
+  }
 }
-console.log("1a) Startvorgänge erfolgreich im Jahr 2018:", counter2018Success)
+console.log("1a) Im Jahr " + year + " startetn " + counter2018Success + " erfogreich.")
 ////////////////////////////////////1b//////////////////////////////////////////
-console.log("1b) Startvorgänge nicht erfolgreich im Jahr 2018:", counter2018 - counter2018Success)
+console.log("1a) Im Jahr " + year + " startetn " + (counter2018 - counter2018Success) + " nicht erfogreich.")
+
 //
 // 2) Wie viele kg Nutzlast wurden im Jahr 2018 *erfolgreich* ins Weltall 
 //    gestartet?
@@ -50,19 +52,21 @@ console.log("1b) Startvorgänge nicht erfolgreich im Jahr 2018:", counter2018 - 
 //    "payload_mass_kg".
 //  
 //    Hinweis: 
-//    Bitte beachte, dass eine Rakete u.U. mehrere Satelliten haben kann!
+//    Bitte beachte, dass eine Rakete u.U. mehrere Satelliten haben kann!  
+
 let sumkg = 0
 for (const launch of launches) {
-  if (launch["launch_year"] !== "2018" || launch["launch_success"] === false) {
+  if (launch["launch_year"] !== year || launch["launch_success"] === false) {
     continue
   }
-
   const secondStage = launch["rocket"]["second_stage"]
 
   for (const payload of secondStage["payloads"]) {
     const kg = payload["payload_mass_kg"]
-    sumkg
-      = sumkg + kg
+
+    sumkg = sumkg + kg
   }
+
 }
-console.log(sumkg + " kg Nutzlast wurden im Jahr 2018 *erfolgreich* ins Weltall gebracht.")
+
+console.log(sumkg + " kg Nutzlast wurden im Jahr " + year + " *erfolgreich* ins Weltall gebracht.")

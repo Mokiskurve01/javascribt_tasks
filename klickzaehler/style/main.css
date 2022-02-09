@@ -1,0 +1,26 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  height: 100vh;
+  background-image: radial-gradient(rgb(211, 211, 211), rgb(55, 55, 155));
+}
+
+.h1 {
+  text-align: center;
+  padding-top: 45vh;
+  font-size: 2rem;
+}
+
+.button-container {
+  text-align: center;
+}
+
+.button {
+  font-size: 1.5rem;
+  padding: 0.2rem 1.5rem;
+  border-radius: 111111rem;
+}
