@@ -1,104 +1,214 @@
-// 1.Strikter Modus für komplettes Skript
 'use strict';
-// 2.keyCode der Entertaste
+
 const KEY_ENTER = 13
-// 3.HTML-Dokument vollständig geladen 
-document.addEventListener("DOMContentLoaded", () => {
-  // 4.abfrage des elements des eingabefeldes(."new-todo")
-  const newTodoElement = document.querySelector(".new-todo")
-  // 5.die gesamte ul list (."todo-list")
-  const todoListElement = document.querySelector(".todo-list")
-  // 6.footer bereich(."footer")
-  const footerElement = document.querySelector(".footer")
-  // 7.item anzahl(".todo-count strong")
-  const todoCountElement = document.querySelector(".todo-count strong")
-  // 8.alle listen löschen(".clear-completed")
-  const clearCompletedElement = document.querySelector(".clear-completed")
-  // 9.footerbereich display none wenn .length === 0
-  const refreshFooter = () => {
-    if (todoListElement.children.length === 0) {
-      footerElement.style.display = "none"
-    } else {
-      footerElement.style.display = ""
-    }
-    // 10.zählen der todocounter("li:not(.completed)")
-    let todoCounter = todoListElement.querySelectorAll("li:not(.completed)").length
-    // 11.übertragen des counters
-    todoCountElement.innerText = todoCounter
-    // 12.display none wenn ("li.completed").lenght === 0
-    let completedCounter = todoListElement.querySelectorAll("li.completed").length
-    if (completedCounter === 0) {
-      clearCompletedElement.style.display = "none"
-    } else {
-      clearCompletedElement.style.display = ""
-    }
+
+const getId = (() => {
+  let counter = 1
+
+  return () => {
+    counter++
+    return counter
   }
-  // 13.footer aktualiesieren
-  refreshFooter()
-  // 14.checkbox setzen und text durchstreichen 
-  const addCallbacksForLi = (liElement) => {
-    const checkboxElement = liElement.querySelector(".toggle")
-    const destroyButtonElement = liElement.querySelector(".destroy")
-    // 15.bei completed text durchstreichen
-    checkboxElement.addEventListener("change", () => {
-      if (checkboxElement.checked) {
-        liElement.classList.add("completed")
-      } else {
-        liElement.classList.remove("completed")
+})()
+
+
+const todoModule = {
+  todos: [],
+
+  /**
+   * @param {string} title
+   */
+  addTodo(title) {
+    const newTodo = {
+      id: getId(),
+      title: title,
+      done: false
+    }
+    this.todos.push(newTodo)
+    this.emit("add", newTodo)
+  },
+
+  removeCompletedTodos() {
+    for (const todo of this.todos) {
+      if (todo.done) {
+        this.removeTodo(todo.id)
       }
-      // 16.footer aktualiesieren
-      refreshFooter()
-    })
-    // 17.x löscht die ganze liste
-    destroyButtonElement.addEventListener("click", () => {
-      liElement.remove()
-      // 18.footer aktualiesieren
-      refreshFooter()
-    })
+    }
+  },
+
+  /**
+   * @param {number} id 
+   */
+  removeTodo(id) {
+    for (const index in this.todos) {
+      const todo = this.todos[index]
+      if (todo.id === id) {
+        this.todos.splice(index, 1)
+        this.emit("remove", todo)
+      }
+    }
+  },
+
+  /**
+   * @param {number} id
+   */
+  completeTodo(id) {
+    for (const todo of this.todos) {
+      if (todo.id === id && todo.done === false) {
+        todo.done = true
+        this.emit("changeTodo", todo)
+      }
+    }
+  },
+  /**
+   * @param {number} id
+   */
+  unCompleteTodo(id) {
+    for (const todo of this.todos) {
+      if (todo.id === id && todo.done === true) {
+        todo.done = false
+        this.emit("changeTodo", todo)
+      }
+    }
+  },
+
+  /**
+   * @returns {number}
+   */
+  getTodoCount() {
+    let todoCount = 0
+    for (const todo of this.todos) {
+      if (todo.done === false) {
+        todoCount++
+      }
+    }
+    return todoCount
+  },
+
+
+  events: {},
+  /**
+   * Löst ein Ereignis aus. Dieser Funktion dürfen beliebig viele
+   * params übergeben werden, diese werden 1:1 an die Event-Listener
+   * durchgereicht.
+   *
+   * @param {string} eventName
+   * @param {*=} params
+   */
+  emit(eventName, param) {
+    if (eventName in this.events) {
+      for (const f of this.events[eventName]) {
+        f(param)
+      }
+    }
+  },
+
+  /**
+   * Registriert einen Event-Listener für das Event eventName.
+   *
+   * @param {string} eventName
+   * @param {Function} cb
+   */
+  on(eventName, cb) {
+    // Hier ist die Klammersetzung ganz wichtig!
+    if (!(eventName in this.events)) {
+      this.events[eventName] = []
+    }
+    this.events[eventName].push(cb)
   }
-  // 19.mit entertaste wird das element bestätige
-  newTodoElement.addEventListener("keypress", (event) => {
-    // 20.prüfen ob die entertaste gedrückt wurde und ob es einen wert hat
-    if (event.which === KEY_ENTER && newTodoElement.value !== "") {
-      // 21.es wird eine neue html strucktur angelgt (button-label-checkbox-div-li)
-      const newButtonElement = document.createElement("button")
-      const newLabelElement = document.createElement("label")
-      const newInputCheckbox = document.createElement("input")
-      const newDivElement = document.createElement("div")
-      const newLiElement = document.createElement("li")
-      // 22.button_checkbox_div bekommen eine zusätzliche klasse
-      newButtonElement.classList.add("destroy")
-      newInputCheckbox.classList.add("toggle")
-      newDivElement.classList.add("view")
-      // 23.aktueller inhalt des texteingabefeldes hineinsetzten
-      newLabelElement.appendChild(
-        document.createTextNode(newTodoElement.value)
-      )
-      // 24.die typeeigenschaft wird auf checkbox gesetzt
-      newInputCheckbox.type = "checkbox"
-      // 25.drei elemente werden ddem div hinzugefügt
-      newDivElement.appendChild(newInputCheckbox)
-      newDivElement.appendChild(newLabelElement)
-      newDivElement.appendChild(newButtonElement)
-      // 26.das div wird dem li element hinzugefügt
-      newLiElement.appendChild(newDivElement)
-      // 27.callback aufrufe der neuen liste
-      addCallbacksForLi(newLiElement)
-      // 28.das listelement wird der ulListe oben hinzugefügt
-      todoListElement.prepend(newLiElement)
-      // 29.eingabefeld value wird gelöscht
-      newTodoElement.value = ""
-      // 30.anzahl item aktualisieren
-      refreshFooter()
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const elements = {
+    newTodo: document.querySelector(".new-todo"),
+    todoList: document.querySelector(".todo-list"),
+    footer: document.querySelector(".footer"),
+    todoCount: document.querySelector(".todo-count strong"),
+    clearCompleted: document.querySelector(".clear-completed"),
+  }
+
+  // Button: Fertiggestellte Todos löschen!
+  elements.clearCompleted.addEventListener("click", (event) => {
+    todoModule.removeCompletedTodos()
+  })
+
+  // Ein neues Todo soll hinzugefügt werden
+  elements.newTodo.addEventListener("keypress", (event) => {
+    if (event.keyCode === KEY_ENTER) {
+      const todoTitle = elements.newTodo.value
+      if (todoTitle !== "") {
+        todoModule.addTodo(todoTitle)
+        elements.newTodo.value = ""
+      }
     }
   })
-  // 31.alle completedelemente löschen
-  clearCompletedElement.addEventListener("click", (event) => {
-    const completedLiElements = todoListElement.querySelectorAll("li.completed")
-    for (const completedLiElement of completedLiElements) {
-      completedLiElement.remove()
-    }
-    // 32.anzahl item aktualisieren
-    refreshFooter()
+
+  // Wenn ein Todo hinzugefügt wird -> Zeige es im Browser an!
+  todoModule.on("add", (todo) => {
+    const newButtonElement = document.createElement("button")
+    newButtonElement.classList.add("destroy")
+
+    newButtonElement.addEventListener("click", (event) => {
+      todoModule.removeTodo(todo.id)
+    })
+
+    const newLabelElement = document.createElement("label")
+    newLabelElement.appendChild(
+      document.createTextNode(todo.title)
+    )
+
+    const newInputCheckbox = document.createElement("input")
+    newInputCheckbox.type = "checkbox"
+    newInputCheckbox.classList.add("toggle")
+
+    newInputCheckbox.addEventListener("change", (event) => {
+      const checkboxChecked = newInputCheckbox.checked
+      if (checkboxChecked) {
+        todoModule.completeTodo(todo.id)
+      } else {
+        todoModule.unCompleteTodo(todo.id)
+      }
+    })
+
+    const newDivElement = document.createElement("div")
+    newDivElement.classList.add("view")
+    newDivElement.appendChild(newInputCheckbox)
+    newDivElement.appendChild(newLabelElement)
+    newDivElement.appendChild(newButtonElement)
+
+    const newLiElement = document.createElement("li")
+    newLiElement.setAttribute("data-id", todo.id)
+    newLiElement.appendChild(newDivElement)
+
+
+    elements.todoList.prepend(newLiElement)
   })
+
+  // Wenn ein Todo gelöscht wird!
+  todoModule.on("remove", (todo) => {
+    const liElement = elements.todoList.querySelector("li[data-id='" + todo.id + "']")
+    liElement.remove()
+  })
+
+  // Wenn ein Todo fertiggestellt wird bzw. dies zurückgenommen wird
+  todoModule.on("changeTodo", (todo) => {
+    // "li[data-id='3']"
+    const liElement = elements.todoList.querySelector("li[data-id='" + todo.id + "']")
+    if (todo.done) {
+      liElement.classList.add("completed")
+    } else {
+      liElement.classList.remove("completed")
+    }
+  })
+  // UUID
+
+  // Footer-Anzeige aktualisieren
+  const refreshFooter = () => {
+    elements.todoCount.innerText = todoModule.getTodoCount()
+  }
+  todoModule.on("add", refreshFooter)
+  todoModule.on("remove", refreshFooter)
+  todoModule.on("changeTodo", refreshFooter)
+
+
 });
